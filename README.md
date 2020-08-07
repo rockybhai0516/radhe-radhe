@@ -18,9 +18,11 @@ usage : ./radha.sh <Target.com>
 3.chmod +x radha.sh 
 
 [*] httprobe should be installed 
- go get -u github.com/tomnomnom/httprobe
+   
+   go get -u github.com/tomnomnom/httprobe
 
 [*] waybackurl should be installed
-    go get -u github.com/tomnomnom/waybackurls
+   
+   go get -u github.com/tomnomnom/waybackurls
     
    
