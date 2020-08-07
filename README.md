@@ -13,7 +13,7 @@ usage : ./radha.sh <Target.com>
 
 1.git clone https://github.com/rockybhai0516/radhe-radhe.git
 
-2.cd radheradhe
+2.cd radhe-radhe
 
 3.chmod +x radha.sh 
 
