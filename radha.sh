@@ -7,6 +7,16 @@
 #set -euo pipefail
 ###############################radha.sh######################################
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 &&pwd)"
+TMPDIR="/tmp/radherahe"
+WLDIR="${DIR}/curl/out.html"
+LDIR="${DIR}/output/$domain_restapi"
+LDIR="${DIR}/output/$domain_hidden_url"
+
+
+
+
+
 if [ ! -d 'curl' ]; then
 	mkdir curl
 fi
@@ -29,11 +39,11 @@ trap ctrl_c INT
 ctrl_c(){
     echo "interrupt detected, doing cleanup and exiting.."
     do_cleanup
-    exit 
+    exit
 }
 
 do_cleanup(){
-		rm -fr curl 
+		rm -fr curl
 		rm -fr alive.txt
 		rm -fr urls.txt
 }
@@ -55,19 +65,21 @@ then
 fi
 
 domain=$1
-html=$curl/out.html
 
 echo "[*] gathering all subdomains"
+
 curl -s https://certspotter.com/api/v0/certs\?domain\=$domain | jq '.[].dns_names[]' | sed 's/\"//g' | sed 's/\*\.//g' | sort -u | grep $domain | httprobe -c 70 |  grep https > alive.txt
 
 echo "[*] getting js files"
-cat host | httprobe -c 70 | waybackurls | grep https | grep .js | cut -d '?' -f1 | sort -u | xargs -n1 -I{} curl {} > curl/out.html
+
+cat alive.txt | waybackurls | grep https | grep .js | cut -d '?' -f1 | sort -u | xargs -n1 -I{} curl {} > $WLDIR
 
 echo "[*] getting hidden urls from the js file"
-cat curl/out.html | grep -Eo "(http|https)://[a-zA-Z0-9./?=_-]*" | sort -u | tee /output/$domain_hidden_url
 
-echo"[*] getting the rest api admin disclosure "
-cat curl/out.html | grep -Eo "(http|https)://[a-zAA-Z0-9./?=_-]*" | sort -u | grep "wp-json/wp/v1/users" | grep "wp-json/wp/v2/users" | tee output/$domain_restapi
+cat $WLDIR | grep -Eo "(http|https)://[a-zA-Z0-9./?=_-]*" | sort -u | tee ${DIR}/output/$domain_hidden_url.txt
+
+echo "[*] getting the rest api admin disclosure "
+
+cat curl/out.html | grep -Eo "(http|https)://[a-zAA-Z0-9./?=_-]*" | sort -u | grep "wp-json/wp/v1/users" | grep "wp-json/wp/v2/users" | tee ${DIR}/output/$domain_restapi.txt
 
 do_cleanup
-
