@@ -65,20 +65,26 @@ then
 fi
 
 domain=$1
-
-echo "[*] gathering all subdomains"
-
+echo "-----------------------------------------------------------------------------------------------------------------"
+echo "                                         [*] gathering all subdomains                                            "
+echo "-----------------------------------------------------------------------------------------------------------------"
 curl -s https://certspotter.com/api/v0/certs\?domain\=$domain | jq '.[].dns_names[]' | sed 's/\"//g' | sed 's/\*\.//g' | sort -u | grep $domain | httprobe -c 70 |  grep https > alive.txt
 
-echo "[*] getting js files"
+echo "------------------------------------------------------------------------------------------------------------------"
+echo "                                         [*] getting js files                                                     "
+echo "------------------------------------------------------------------------------------------------------------------"
 
 cat alive.txt | waybackurls | grep https | grep .js | cut -d '?' -f1 | sort -u | xargs -n1 -I{} curl {} > $WLDIR
 
-echo "[*] getting hidden urls from the js file"
+echo "-------------------------------------------------------------------------------------------------------------------"
+echo "                                         [*] getting hidden urls from the js file                                  "
+echo "--------------------------------------------------------------------------------------------------------------------"
 
 cat $WLDIR | grep -Eo "(http|https)://[a-zA-Z0-9./?=_-]*" | sort -u | tee ${DIR}/output/$domain_hidden_url.txt
 
-echo "[*] getting the rest api admin disclosure "
+echo "-------------------------------------------------------------------------------------------------------------------"
+echo "                                          [*] getting the rest api admin disclosure                                "
+echo "-------------------------------------------------------------------------------------------------------------------"
 
 cat curl/out.html | grep -Eo "(http|https)://[a-zAA-Z0-9./?=_-]*" | sort -u | grep "wp-json/wp/v1/users" | grep "wp-json/wp/v2/users" | tee ${DIR}/output/$domain_restapi.txt
 
